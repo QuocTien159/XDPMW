@@ -1,0 +1,28 @@
+# Thư mục gốc (Root) .gitignore
+
+# Dependencies
+**/node_modules
+**/vendor
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*

@@ -1,0 +1,5 @@
+// File cấu hình trung tâm cho API URL
+// Khi deploy: đặt biến môi trường VITE_API_URL trong Vercel
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
+export default API_URL;

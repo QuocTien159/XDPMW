@@ -1,0 +1,56 @@
+.page{
+  font-family: Arial;
+  background:#f4f4f4;
+  text-align:center;
+  height:100vh;
+}
+
+.logo{
+  width:80px;
+  margin-top:60px;
+}
+
+.title{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.box{
+  width:500px;
+  margin:40px auto;
+  background:#eee;
+  border:1px solid #555;
+  border-radius:30px;
+  padding:40px;
+}
+
+label{
+  display:block;
+  text-align:left;
+  font-size:22px;
+  margin:20px 0 10px;
+}
+
+input{
+  width:100%;
+  padding:15px;
+  border:none;
+  background:#cfe3e6;
+  border-radius:5px;
+}
+
+button{
+  margin-top:30px;
+  padding:12px 40px;
+  font-size:20px;
+  border:none;
+  border-radius:20px;
+  background:#2d8acb;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#1f6fa8;
+}
