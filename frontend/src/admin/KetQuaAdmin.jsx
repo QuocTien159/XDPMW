@@ -122,7 +122,7 @@ function KetQuaAdmin() {
                           background: r.status === "pass" ? "#d4f5e0" : "#fde8e8",
                           color: r.status === "pass" ? "#1a7a35" : "#c0392b"
                         }}>
-                          {r.status === "pass" ? "✅ Đạt" : "❌ Không đạt"}
+                          {r.status === "pass" ? "Đạt" : "Không đạt"}
                         </span>
                       </td>
                       <td style={{ ...td, fontSize: "13px", color: "#666" }}>{fmtDT(r.end_time)}</td>
