@@ -181,20 +181,25 @@ class ExamController extends Controller
         $maxScore = 0;
 
         foreach ($questions as $q) {
-            $maxScore += $q->marks;
+            $marks = $q->marks > 0 ? $q->marks : 1; // Mặc định 1 điểm nếu chưa có điểm
+            $maxScore += $marks;
+            
             $selectedOptionId = $answers[$q->id] ?? null;
             if ($selectedOptionId) {
                 $opt = \DB::table('savsoft_questions_options')
                     ->where('id', $selectedOptionId)
                     ->first();
                 if ($opt && $opt->is_correct) {
-                    $totalScore += $q->marks;
+                    $totalScore += $marks;
                 }
             }
         }
 
         $percentage = $maxScore > 0 ? round(($totalScore / $maxScore) * 100, 2) : 0;
-        $status = $percentage >= $exam->pass_percentage ? 'pass' : 'fail';
+        
+        // Ép kiểu float để so sánh chính xác
+        $passPercentage = (float) $exam->pass_percentage;
+        $status = ((float)$percentage >= $passPercentage) ? 'pass' : 'fail';
 
         // Lưu kết quả
         $resultId = \DB::table('savsoft_results')->insertGetId([
