@@ -57,6 +57,7 @@ class UserController extends Controller
                 try {
                     $isValidPassword = Hash::check($request->password, $user->password);
                 } catch (\Exception $e) {
+                    
                     $isValidPassword = false;
                 }
             }
