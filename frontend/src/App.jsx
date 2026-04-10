@@ -8,6 +8,7 @@ import TaiKhoan from "./trang/TaiKhoan";
 import DangNhap from "./trang/DangNhap";
 import LamBai from "./trang/LamBai";
 import NopBai from "./trang/NopBai";
+import DeThi from "./trang/DeThi";
 
 import UserList from "./components/UserList";
 import UserDetail from "./components/UserDetail";
@@ -33,6 +34,8 @@ function App() {
 
       {/* Tài khoản */}
       <Route path="/taikhoan" element={<TaiKhoan />} />
+      {/* Danh sách đề thi */}
+      <Route path="/dethi" element={<DeThi />} />
 
       {/* Test API */}
       <Route path="/users" element={<UserList />} />
