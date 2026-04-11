@@ -1,91 +1,112 @@
+import { useState, useEffect } from "react";
 import NavbarUser from "../layout/NavbarUser";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import API_URL from "../config";
 
 function KetQua() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { result, examTitle } = location.state || {};
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!result) {
-    return (
-      <div>
-        <NavbarUser />
-        <div style={{ textAlign: "center", padding: "80px" }}>
-          <p>Không có dữ liệu kết quả.</p>
-          <button onClick={() => navigate("/trangchu")} style={backBtn}>Về trang chủ</button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      navigate("/dangnhap"); 
+      return;
+    }
 
-  const isPassed = result.exam_status === "pass";
+    const user = JSON.parse(storedUser);
+    const userId = user.id || user.uid; 
+
+    const fetchResults = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/results/user/${userId}`);
+        if (response.data.status === "success") {
+          setResults(response.data.data);
+        } else {
+          setError("Không thể tải lịch sử kết quả.");
+        }
+      } catch (err) {
+        setError("Có lỗi xảy ra khi kết nối đến máy chủ.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [navigate]);
+
+ 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN");
+  };
 
   return (
-    <div style={{ background: "#f4f6f9", minHeight: "100vh" }}>
+    <div>
       <NavbarUser />
-      <div style={{ maxWidth: "600px", margin: "40px auto", padding: "0 20px" }}>
+      <div className="container mt-5">
+        <h2 className="mb-4 text-center">Lịch Sử Thi Của Bạn</h2>
 
-        {/* Banner kết quả */}
-        <div style={{
-          background: isPassed ? "linear-gradient(135deg, #27ae60, #2ecc71)" : "linear-gradient(135deg, #e74c3c, #c0392b)",
-          borderRadius: "16px", padding: "32px", textAlign: "center", color: "white",
-          marginBottom: "24px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
-        }}>
-          <div style={{ fontSize: "60px", marginBottom: "8px" }}>{isPassed ? "🎉" : "😔"}</div>
-          <h2 style={{ margin: "0 0 8px" }}>{isPassed ? "Chúc mừng! Bạn đã đạt!" : "Bạn chưa đạt!"}</h2>
-          <p style={{ margin: 0, opacity: 0.9, fontSize: "15px" }}>{result.message}</p>
-        </div>
-
-        {/* Chi tiết điểm */}
-        <div style={card}>
-          <h4 style={{ marginBottom: "20px", color: "#2e3f63" }}>📋 {examTitle || "Kết quả bài thi"}</h4>
-          <div style={scoreTable}>
-            <div style={scoreRow}>
-              <span>Điểm đạt được</span>
-              <strong style={{ fontSize: "24px", color: isPassed ? "#27ae60" : "#e74c3c" }}>
-                {result.total_score} / {result.max_score}
-              </strong>
-            </div>
-            <div style={scoreRow}>
-              <span>Phần trăm</span>
-              <strong>{result.percentage}%</strong>
-            </div>
-            <div style={{ ...scoreRow, border: "none" }}>
-              <span>Kết quả</span>
-              <span style={{
-                padding: "4px 14px", borderRadius: "20px", fontWeight: "bold",
-                background: isPassed ? "#d4f5e0" : "#fde8e8",
-                color: isPassed ? "#1a7a35" : "#c0392b"
-              }}>
-                {isPassed ? "✅ Đạt" : "❌ Không đạt"}
-              </span>
+        {loading ? (
+          <div className="text-center mt-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
             </div>
           </div>
-        </div>
-
-        <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
-          <button onClick={() => navigate("/trangchu")} style={backBtn}>← Về danh sách</button>
-        </div>
+        ) : error ? (
+          <div className="alert alert-danger text-center mt-4">{error}</div>
+        ) : results.length === 0 ? (
+          <div className="alert alert-info text-center mt-4">
+            Bạn chưa hoàn thành bài thi nào.
+          </div>
+        ) : (
+          <div className="table-responsive shadow-sm rounded">
+            <table className="table table-bordered table-hover mb-0">
+              <thead className="table-primary text-center align-middle">
+                <tr>
+                  <th>STT</th>
+                  <th>Tên Bài Thi</th>
+                  <th>Điểm Số</th>
+                  <th>Phần Trăm (%)</th>
+                  <th>Trạng Thái</th>
+                  <th>Thời Gian Nộp Bài</th>
+                </tr>
+              </thead>
+              <tbody className="text-center align-middle">
+                {results.map((item, index) => {
+                  // Determine passed/failed status based on percentage
+                  const isPassed = item.status === "passed" || item.percentage >= 50;
+                  
+                  return (
+                    <tr key={item.id || index}>
+                      <td>{index + 1}</td>
+                      <td className="text-start fw-medium">
+                        {item.exam?.title || `Bài thi #${item.exam_id}`}
+                      </td>
+                      <td className="fw-bold text-success fs-5">{item.total_score}</td>
+                      <td>{item.percentage ? `${item.percentage}%` : "N/A"}</td>
+                      <td>
+                        <span className={`badge ${isPassed ? "bg-success" : "bg-danger"}`}>
+                          {isPassed ? "Đạt" : "Chưa Đạt"}
+                        </span>
+                      </td>
+                      <td>{formatDate(item.end_time)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-const card = {
-  background: "white", borderRadius: "12px",
-  padding: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
-};
-
-const scoreTable = { display: "flex", flexDirection: "column", gap: 0 };
-
-const scoreRow = {
-  display: "flex", justifyContent: "space-between", alignItems: "center",
-  padding: "14px 0", borderBottom: "1px solid #f0f0f0", fontSize: "15px", color: "#444"
-};
-
-const backBtn = {
-  flex: 1, padding: "12px", background: "#3b6fb6", color: "white",
-  border: "none", borderRadius: "10px", cursor: "pointer", fontSize: "15px", fontWeight: "bold"
-};
 
 export default KetQua;

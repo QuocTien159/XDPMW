@@ -268,4 +268,17 @@ class ExamController extends Controller
             'data' => $results
         ]);
     }
+    public function getUserResults($uid)
+    {
+       
+        $results = \App\Models\SavsoftResult::with('exam')
+            ->where('uid', $uid)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $results
+        ]);
+    }
 }
