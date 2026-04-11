@@ -26,7 +26,8 @@ Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam']);
 Route::put('/exams/{id}', [ExamController::class, 'update']);
 Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
 Route::get('/results', [ExamController::class, 'allResults']);
-Route::get('/user-results/{userId}', [ExamController::class, 'getUserResults']);
+
+Route::get('/user-results/{userId}', [\App\Http\Controllers\Api\ExamController::class, 'getUserResults']);
 
 use App\Http\Controllers\Api\QuestionController;
 Route::get('/exams/{exam_id}/questions', [QuestionController::class, 'index']);
