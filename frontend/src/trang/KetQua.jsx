@@ -21,21 +21,26 @@ function KetQua() {
     const userId = user.uid || user.id; 
 
     const fetchResults = async () => {
-      try {
-        const response = await fetch(`${config.API_BASE_URL}/api/user-results/${userId}`);
-        
-        if (!response.ok) {
-          throw new Error("Không thể tải kết quả thi từ máy chủ.");
-        }
+  try {
+    const response = await fetch(`${config.API_BASE_URL}/api/user-results/${userId}`);
+    
+   
+    const text = await response.text();
+    console.log("Raw Response:", text); 
 
-        const data = await response.json();
-        setResults(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    
+    if (text.startsWith('{') || text.startsWith('[')) {
+      const data = JSON.parse(text);
+      setResults(data);
+    } else {
+      setError("Server returned HTML instead of JSON. Check console.");
+    }
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchResults();
   }, [navigate]);
