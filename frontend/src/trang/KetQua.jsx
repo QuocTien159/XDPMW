@@ -22,7 +22,7 @@ function KetQua() {
 
     const fetchResults = async () => {
   try {
-    const response = await fetch(`${config.API_BASE_URL}/api/user-results/${userId}`);
+    const response = await fetch(`${config}/user-results/${userId}`);
     
    
     const text = await response.text();

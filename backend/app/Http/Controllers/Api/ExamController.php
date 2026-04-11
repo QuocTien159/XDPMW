@@ -268,18 +268,12 @@ class ExamController extends Controller
             'data' => $results
         ]);
     }
-   public function getUserResults($userId)
+  public function getUserResults($userId)
 {
-    
-    $results = \App\Models\SavsoftResult::where('uid', $userId) 
+   
+    $results = SavsoftResult::where('uid', $userId)
         ->join('savsoft_exams', 'savsoft_results.quid', '=', 'savsoft_exams.quid')
-        ->select(
-            'savsoft_exams.exam_name', 
-            'savsoft_results.score_obtained as score', 
-            'savsoft_results.result_status as status',
-            'savsoft_results.start_time as created_at'
-        )
-        ->orderBy('savsoft_results.rid', 'desc')
+        ->select('savsoft_exams.exam_name', 'savsoft_results.score_obtained', 'savsoft_results.start_time')
         ->get();
 
     return response()->json($results);
