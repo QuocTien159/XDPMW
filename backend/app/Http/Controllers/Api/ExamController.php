@@ -268,17 +268,28 @@ class ExamController extends Controller
             'data' => $results
         ]);
     }
-    public function getUserResults($uid)
-    {
+   public function getUserResults($userId)
+{
+    try {
        
-        $results = \App\Models\SavsoftResult::with('exam')
-            ->where('uid', $uid)
-            ->orderBy('id', 'desc')
+        $results = \App\Models\SavsoftResult::where('uid', $userId)
+            ->join('savsoft_exams', 'savsoft_results.quid', '=', 'savsoft_exams.quid')
+            ->select(
+                'savsoft_results.rid', 
+                'savsoft_results.score_obtain',
+                'savsoft_exams.exam_name', 
+                'savsoft_results.created_at'
+            )
+            ->orderBy('savsoft_results.created_at', 'desc')
             ->get();
 
+        return response()->json($results, 200);
+
+    } catch (\Exception $e) {
         return response()->json([
-            'status' => 'success',
-            'data' => $results
-        ]);
+            'message' => 'Có lỗi xảy ra khi lấy kết quả bài thi.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 }

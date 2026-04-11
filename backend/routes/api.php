@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
-
+use App\Http\Controllers\Api\ExamController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -18,7 +18,7 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
 
-use App\Http\Controllers\Api\ExamController;
+
 Route::get('/exams', [ExamController::class, 'index']);
 Route::post('/exams', [ExamController::class, 'store']);
 Route::get('/exams/{id}/check-attempt', [ExamController::class, 'checkAttempt']);
@@ -26,7 +26,7 @@ Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam']);
 Route::put('/exams/{id}', [ExamController::class, 'update']);
 Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
 Route::get('/results', [ExamController::class, 'allResults']);
-Route::get('/results/user/{uid}', [ExamController::class, 'getUserResults']);
+Route::get('/user-results/{userId}', [ExamController::class, 'getUserResults']);
 
 use App\Http\Controllers\Api\QuestionController;
 Route::get('/exams/{exam_id}/questions', [QuestionController::class, 'index']);

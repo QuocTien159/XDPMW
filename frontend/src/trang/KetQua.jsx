@@ -1,111 +1,98 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import NavbarUser from "../layout/NavbarUser";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import API_URL from "../config";
+import config from "../config";
 
 function KetQua() {
-  const navigate = useNavigate();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     
     const storedUser = localStorage.getItem("user");
+    
     if (!storedUser) {
-      navigate("/dangnhap"); 
+      navigate("/dang-nhap"); 
       return;
     }
 
     const user = JSON.parse(storedUser);
-    const userId = user.id || user.uid; 
 
-    const fetchResults = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/results/user/${userId}`);
-        if (response.data.status === "success") {
-          setResults(response.data.data);
-        } else {
-          setError("Không thể tải lịch sử kết quả.");
-        }
-      } catch (err) {
-        setError("Có lỗi xảy ra khi kết nối đến máy chủ.");
-        console.error(err);
-      } finally {
+   
+    fetch(`${config.API_BASE_URL}/api/user-results/${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setResults(data);
         setLoading(false);
-      }
-    };
-
-    fetchResults();
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải kết quả:", err);
+        setLoading(false);
+      });
   }, [navigate]);
 
- 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleString("vi-VN");
-  };
-
   return (
-    <div>
+    <>
       <NavbarUser />
       <div className="container mt-5">
-        <h2 className="mb-4 text-center">Lịch Sử Thi Của Bạn</h2>
-
+        <h2 className="mb-4 text-center fw-bold text-primary">Kết quả bài thi đã làm của sinh viên</h2>
+        
         {loading ? (
-          <div className="text-center mt-5">
+          <div className="d-flex justify-content-center my-5">
             <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
+              <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : error ? (
-          <div className="alert alert-danger text-center mt-4">{error}</div>
-        ) : results.length === 0 ? (
-          <div className="alert alert-info text-center mt-4">
-            Bạn chưa hoàn thành bài thi nào.
-          </div>
-        ) : (
+        ) : results.length > 0 ? (
           <div className="table-responsive shadow-sm rounded">
-            <table className="table table-bordered table-hover mb-0">
-              <thead className="table-primary text-center align-middle">
+            <table className="table table-bordered table-hover align-middle mb-0">
+              <thead className="table-dark">
                 <tr>
-                  <th>STT</th>
-                  <th>Tên Bài Thi</th>
-                  <th>Điểm Số</th>
-                  <th>Phần Trăm (%)</th>
-                  <th>Trạng Thái</th>
-                  <th>Thời Gian Nộp Bài</th>
+                  <th scope="col" className="text-center" style={{ width: "5%" }}>#</th>
+                  <th scope="col" style={{ width: "45%" }}>Tên Bài Thi</th>
+                  <th scope="col" className="text-center" style={{ width: "15%" }}>Điểm Số</th>
+                  <th scope="col" className="text-center" style={{ width: "15%" }}>Trạng Thái</th>
+                  <th scope="col" className="text-center" style={{ width: "20%" }}>Thời Gian Nộp</th>
                 </tr>
               </thead>
-              <tbody className="text-center align-middle">
-                {results.map((item, index) => {
-                  // Determine passed/failed status based on percentage
-                  const isPassed = item.status === "passed" || item.percentage >= 50;
-                  
-                  return (
-                    <tr key={item.id || index}>
-                      <td>{index + 1}</td>
-                      <td className="text-start fw-medium">
-                        {item.exam?.title || `Bài thi #${item.exam_id}`}
-                      </td>
-                      <td className="fw-bold text-success fs-5">{item.total_score}</td>
-                      <td>{item.percentage ? `${item.percentage}%` : "N/A"}</td>
-                      <td>
-                        <span className={`badge ${isPassed ? "bg-success" : "bg-danger"}`}>
-                          {isPassed ? "Đạt" : "Chưa Đạt"}
-                        </span>
-                      </td>
-                      <td>{formatDate(item.end_time)}</td>
-                    </tr>
-                  );
-                })}
+              <tbody>
+                {results.map((item, index) => (
+                  <tr key={item.rid || index}>
+                    <td className="text-center fw-bold">{index + 1}</td>
+                    <td className="fw-medium">{item.exam_name}</td>
+                    <td className="text-center text-success fw-bold fs-5">
+                      {item.score_obtain} / {item.total_score || '10'}
+                    </td>
+                    <td className="text-center">
+                    
+                      {item.score_obtain >= 5 ? (
+                         <span className="badge bg-success px-3 py-2">Đạt</span>
+                      ) : (
+                         <span className="badge bg-danger px-3 py-2">Chưa đạt</span>
+                      )}
+                    </td>
+                    <td className="text-center">
+                      {new Date(item.created_at).toLocaleString("vi-VN", {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+        ) : (
+          <div className="alert alert-info text-center shadow-sm" role="alert">
+           Sinh viên chưa hoàn thành bài thi nào trên hệ thống.
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
