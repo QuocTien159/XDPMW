@@ -70,7 +70,7 @@ function TrangChu() {
         }}>
           <h5 style={{ marginBottom: "6px", color: "#555" }}>📢 Thông báo</h5>
           <p style={{ margin: 0, fontSize: "15px" }}>
-            Chào mừng <strong>{user ? `${user.last_name} ${user.first_name}` : ""}</strong> đến hệ thống thi trắc nghiệm STU
+            Chào mừng <strong>{user ? `${user.last_name} ${user.first_name}` : ""}</strong> đến hệ thống thi trắc nghiệm STUs
           </p>
         </div>
 
