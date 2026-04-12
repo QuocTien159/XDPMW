@@ -19,6 +19,7 @@ Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
 
 
+
 Route::get('/exams', [ExamController::class, 'index']);
 Route::post('/exams', [ExamController::class, 'store']);
 Route::get('/exams/{id}/check-attempt', [ExamController::class, 'checkAttempt']);

@@ -1,30 +1,36 @@
 import { useEffect, useState } from "react";
 import NavbarUser from "../layout/NavbarUser";
+import { API_BASE_URL } from '../config';
 
 function TaiKhoan() {
   const [user, setUser] = useState(null);
-
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+        const fetchUserData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setError("No token found. Please login.");
+                    setLoading(false);
+                    return;
+                }
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // fallback
-      setUser({
-        mssv: "DH12345678",
-        ten: "Nguyễn Văn A",
-        email: "dh12345678@stu.edu.vn",
-        lop: "D22_TH00",
-        khoa: "Công Nghệ Thông Tin",
-        nienkhoa: "2022-2026",
-        gpa: "3.5/4.0",
-        diachi: "180 Cao Lỗ, TP.HCM",
-        quequan: "Cần Thơ",
-        sdt: "07xx xxx xxx",
-      });
-    }
-  }, []);
+                const response = await axios.get(`${API_BASE_URL}/user`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setUser(response.data);
+            } catch (err) {
+                setError("Failed to fetch user data.");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+ 
 
   if (!user) return <div>Loading...</div>;
 
@@ -69,11 +75,11 @@ function TaiKhoan() {
                   borderRadius: "15px",
                 }}
               >
-                <p>☐ Họ và tên: {user.ten}</p>
-                <p>☐ MSSV: {user.mssv}</p>
-                <p>☐ Lớp: {user.lop}</p>
-                <p>☐ Email: {user.email}</p>
-                <p>☐ Khoa: {user.khoa}</p>
+                <p>☐ Họ và tên: {user?.name}</p>
+                <p>☐ MSSV: {user?.mssv}</p>
+                <p>☐ Lớp: {user?.lop}</p>
+                <p>☐ Email: {user?.email}</p>
+                <p>☐ Khoa: {user?.khoa}</p>
               </div>
             </div>
           </div>
