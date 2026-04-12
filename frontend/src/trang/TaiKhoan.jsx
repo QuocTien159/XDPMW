@@ -1,32 +1,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarUser from "../layout/NavbarUser";
-import UserDetail from "../components/UserDetail";
 
 function TaiKhoan() {
   const navigate = useNavigate();
-  
-  
   const [currentUser, setCurrentUser] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null); 
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    
+
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser); 
-      setCurrentUser(parsedUser);
-      setCurrentUserId(parsedUser.id || parsedUser.uid); 
+      setCurrentUser(JSON.parse(storedUser));
     } else {
       navigate("/");
     }
   }, [navigate]);
-
-  
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentUser((prevUser) => ({ ...prevUser, [name]: value }));
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -34,51 +22,114 @@ function TaiKhoan() {
     navigate("/");
   };
 
+  if (!currentUser) {
+    return <div className="text-center mt-5">Đang tải...</div>;
+  }
+
   return (
-    <div className="bg-light vh-100">
+    <div className="bg-light min-vh-100">
       <NavbarUser />
-      
+
       <div className="container mt-5">
-        <div className="row justify-content-center">
-          
-         
-          <div className="col-md-6">
-            <h3 className="fw-bold mb-4 text-center">Thông tin tài khoản</h3>
-            {currentUser ? (
-              <div className="card shadow-sm mb-4" style={{ borderRadius: "20px", border: "1px solid #ddd" }}>
-                <div className="card-body p-4">
-                  <UserDetail userId={currentUserId} />
-                </div>
+        <div className="row">
+
+          {/* LEFT */}
+          <div className="col-md-4">
+            <div
+              className="p-4 text-center"
+              style={{
+                border: "2px solid #0d3b66",
+                borderRadius: "30px",
+                background: "#eaf4fb",
+              }}
+            >
+              <h5 className="fw-bold text-primary mb-3">
+                THÔNG TIN CÁ NHÂN
+              </h5>
+
+              {/* Avatar */}
+              <img
+                src="/img/avatar.png"
+                alt=""
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "50%",
+                  background: "#0d3b66",
+                  padding: "10px",
+                }}
+              />
+
+              <div
+                className="mt-4 p-3 text-start"
+                style={{
+                  background: "#0d3b66",
+                  color: "white",
+                  borderRadius: "20px",
+                }}
+              >
+                <p>☐ Họ và tên: {currentUser.holot} {currentUser.ten}</p>
+                <p>☐ MSSV: {currentUser.mssv}</p>
+                <p>☐ Email: {currentUser.email}</p>
+                <p>☐ SĐT: {currentUser.sdt}</p>
               </div>
-            ) : (
-              <div className="text-center">Đang tải dữ liệu...</div>
-            )}
+            </div>
           </div>
 
-          
-          <div>
-            {currentUser && (
-              <div className="card shadow-sm p-4" style={{ borderRadius: "20px" }}>
-                <h5 className="mb-3 fw-bold text-center">Thong tin sinh viên</h5>
-                
-                
-                <input name="studentid" value={currentUser.studentid || currentUser.mssv || ""} placeholder="MSSV" className="form-control mb-3" onChange={handleChange} readOnly="true" />
-                <input name="email" value={currentUser.email || ""} placeholder="Email" className="form-control mb-3" onChange={handleChange} readOnly="true" />
-                <input name="last_name" value={currentUser.last_name || currentUser.holot || ""} placeholder="Họ lót" className="form-control mb-3" onChange={handleChange} readOnly="true" />
-                <input name="first_name" value={currentUser.first_name || currentUser.ten || ""} placeholder="Tên" className="form-control mb-3" onChange={handleChange} />
-                <input name="contact_no" value={currentUser.contact_no || currentUser.sdt || ""} placeholder="SĐT" className="form-control mb-3" onChange={handleChange} />
+          {/* RIGHT */}
+          <div className="col-md-8">
+            <div
+              className="p-4"
+              style={{
+                background: "#0d3b66",
+                borderRadius: "40px",
+                color: "white",
+              }}
+            >
+              <h5 className="text-center fw-bold mb-4">
+                THÔNG TIN CHI TIẾT
+              </h5>
 
-                <div className="d-flex gap-2 justify-content-center mt-4">
-                  <button className="btn btn-primary">Lưu</button>
-                  <button className="btn btn-warning">Đổi mật khẩu</button>
-                  
-                 
-                  <button className="btn btn-danger" onClick={handleLogout}>
-                    Đăng xuất
-                  </button>
+              {[
+                ["NIÊN KHÓA", currentUser.nienkhoa || "2022-2026"],
+                ["GPA", currentUser.gpa || "3.5/4.0"],
+                ["ĐỊA CHỈ", currentUser.diachi || "Chưa cập nhật"],
+                ["QUÊ QUÁN", currentUser.quequan || "Chưa cập nhật"],
+                ["SĐT", currentUser.sdt || "Chưa cập nhật"],
+              ].map(([label, value], index) => (
+                <div
+                  key={index}
+                  className="d-flex mb-3"
+                  style={{
+                    background: "white",
+                    color: "black",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "200px",
+                      background: "#e0e0e0",
+                      padding: "8px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {label}
+                  </div>
+
+                  <div style={{ padding: "8px", flex: 1 }}>
+                    {value}
+                  </div>
                 </div>
+              ))}
+
+              {/* BUTTON */}
+              <div className="text-center mt-4">
+                <button className="btn btn-danger px-4" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
               </div>
-            )}
+
+            </div>
           </div>
 
         </div>
