@@ -1,138 +1,156 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarUser from "../layout/NavbarUser";
+import UserDetail from "../components/UserDetail";
 
 function TaiKhoan() {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(null);
+
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+
+      
+      const id = parsedUser.uid || parsedUser.studentid;
+      setCurrentUserId(id);
     } else {
-      navigate("/");
+      navigate("/dangnhap");
     }
-  }, [navigate]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/dangnhap");
   };
 
-  if (!currentUser) {
-    return <div className="text-center mt-5">Đang tải...</div>;
-  }
-
   return (
-    <div className="bg-light min-vh-100">
+    <div style={{ background: "#f4f6f9", minHeight: "100vh" }}>
       <NavbarUser />
 
+      {/* gọi API */}
+      <UserDetail userId={currentUserId} onData={setUserData} />
+
       <div className="container mt-5">
-        <div className="row">
 
-          {/* LEFT */}
-          <div className="col-md-4">
-            <div
-              className="p-4 text-center"
-              style={{
-                border: "2px solid #0d3b66",
-                borderRadius: "30px",
-                background: "#eaf4fb",
-              }}
-            >
-              <h5 className="fw-bold text-primary mb-3">
-                THÔNG TIN CÁ NHÂN
-              </h5>
+        <h3 className="text-center fw-bold mb-5">
+          Thông tin tài khoản
+        </h3>
 
-              {/* Avatar */}
-              <img
-                src="/img/avatar.png"
-                alt=""
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  borderRadius: "50%",
-                  background: "#0d3b66",
-                  padding: "10px",
-                }}
-              />
+        {userData && (
+          <div className="row">
 
+            {/* LEFT */}
+            <div className="col-md-4">
               <div
-                className="mt-4 p-3 text-start"
+                className="p-4"
                 style={{
                   background: "#0d3b66",
+                  borderRadius: "30px",
                   color: "white",
-                  borderRadius: "20px",
+                  textAlign: "center",
                 }}
               >
-                <p>☐ Họ và tên: {currentUser.holot} {currentUser.ten}</p>
-                <p>☐ MSSV: {currentUser.mssv}</p>
-                <p>☐ Email: {currentUser.email}</p>
-                <p>☐ SĐT: {currentUser.sdt}</p>
-              </div>
-            </div>
-          </div>
+                <h5 className="mb-3">THÔNG TIN CÁ NHÂN</h5>
 
-          {/* RIGHT */}
-          <div className="col-md-8">
-            <div
-              className="p-4"
-              style={{
-                background: "#0d3b66",
-                borderRadius: "40px",
-                color: "white",
-              }}
-            >
-              <h5 className="text-center fw-bold mb-4">
-                THÔNG TIN CHI TIẾT
-              </h5>
-
-              {[
-                ["NIÊN KHÓA", currentUser.nienkhoa || "2022-2026"],
-                ["GPA", currentUser.gpa || "3.5/4.0"],
-                ["ĐỊA CHỈ", currentUser.diachi || "Chưa cập nhật"],
-                ["QUÊ QUÁN", currentUser.quequan || "Chưa cập nhật"],
-                ["SĐT", currentUser.sdt || "Chưa cập nhật"],
-              ].map(([label, value], index) => (
-                <div
-                  key={index}
-                  className="d-flex mb-3"
-                  style={{
-                    background: "white",
-                    color: "black",
-                  }}
-                >
+                
+                {userData.avatar ? (
+                  <img
+                    src={userData.avatar}
+                    alt=""
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginBottom: "15px",
+                    }}
+                  />
+                ) : (
                   <div
                     style={{
-                      width: "200px",
-                      background: "#e0e0e0",
-                      padding: "8px",
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      background: "#fff",
+                      color: "#0d3b66",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto 15px",
+                      fontSize: "30px",
                       fontWeight: "bold",
                     }}
                   >
-                    {label}
+                    {userData.first_name?.charAt(0)}
                   </div>
+                )}
 
-                  <div style={{ padding: "8px", flex: 1 }}>
-                    {value}
-                  </div>
-                </div>
-              ))}
-
-              {/* BUTTON */}
-              <div className="text-center mt-4">
-                <button className="btn btn-danger px-4" onClick={handleLogout}>
-                  Đăng xuất
-                </button>
+                <p>Họ tên: {userData.last_name} {userData.first_name}</p>
+                <p>MSSV: {userData.studentid}</p>
+                <p>Email: {userData.email}</p>
+                <p>Khoa: {userData.facultyid}</p>
               </div>
-
             </div>
-          </div>
 
-        </div>
+            {/* RIGHT */}
+            <div className="col-md-8">
+              <div
+                className="p-4"
+                style={{
+                  background: "#0d3b66",
+                  borderRadius: "30px",
+                  color: "white",
+                }}
+              >
+                <h5 className="text-center mb-4">
+                  THÔNG TIN CHI TIẾT
+                </h5>
+
+                <div className="mb-3 bg-light text-dark p-2 rounded">
+                  Niên khóa: 2022 - 2026
+                </div>
+
+                <div className="mb-3 bg-light text-dark p-2 rounded">
+                  GPA: 3.5 / 4.0
+                </div>
+
+                <div className="mb-3 bg-light text-dark p-2 rounded">
+                  Địa chỉ: ---
+                </div>
+
+                <div className="mb-3 bg-light text-dark p-2 rounded">
+                  Quê quán: ---
+                </div>
+
+                <div className="mb-3 bg-light text-dark p-2 rounded">
+                  SĐT: {userData.contact_no || "Chưa cập nhật"}
+                </div>
+
+                <div className="text-center mt-4">
+                  <button className="btn btn-warning me-2">
+                    Đổi mật khẩu
+                  </button>
+
+                  <button
+                    className="btn btn-danger"
+                    onClick={handleLogout}
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
     </div>
   );
